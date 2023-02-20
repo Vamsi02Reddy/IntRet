@@ -1,27 +1,9 @@
-# import streamlit as st
-# import pickle
-# import numpy as np
-# model = pickle.load(open('model.pkl','rb'))
-
-# def predictSalary(salary):
-#     x = int(salary)
-#     prediction = model.predict([[x]])
-#     return prediction[0]
-
-# def main():
-#     st.title("Linear model testing")
-#     xp = st.text_input("Enter YearsExperience")
-
-#     if st.button("Predict"):
-#         output = predictSalary(xp)
-#         st.success(output)
-
-# if __name__ == '__main__':
-#     main()
-
 import streamlit as st
 import pandas as pd
 import numpy as np
+import nltk
+from nltk.corpus import stopwords
+#import remove_stopwords 
 import pickle
 import math
 pickled_model = pickle.load(open('model.pkl', 'rb'))
@@ -69,11 +51,20 @@ df_new = df_new.drop(range(1,records))
 
 col_names = (list(df_new))
 
+words = stopwords.words()
+# dfClean['cleanedReview'] = dfClean['review'].apply(lambda x: " ".join([stemmer.stem(i) for i in re.sub("[^a-zA-Z]", " ",x).split() if i not in words]).lower())
+# dfClean
+#new_text=remove_stopwords(df_new)
+
+#TOKENIZATION model
 def predictDisease(symptoms):
 
-    # print(symptoms)
+    # print(col_names)
     for i in col_names:
-        if i in symptoms:
+        
+        temp = i.strip()
+        if temp in symptoms or (temp.replace("_","") in symptoms) :
+            print("i hai ye",i)
             df_new[i] = 1
         else:
             df_new[i] = 0
@@ -93,19 +84,22 @@ def predictDisease(symptoms):
 # testingDf = symptoms.drop("Disease",axis=1)
 # print(testingDf)
 
-number = st.text_input("Enter number of symptoms")
-try:
-    number = int(number)
-except:
-    number = 0
-selected_options = []
-if(number<=8):
-    for i in range(number):
-        option = st.selectbox('Symptom',list(symptoms.columns),key=i)
-        'You selected: ', option
-        selected_options.append(option)
-else:
-    st.write("Cant enter more than 8 symptoms")
+para = st.header("IntRet")
+para=st.subheader("Welcome to our Project")
+
+para = st.text_input("Enter the line or sentence that you want predict the disease you have")
+# try:
+#     number = int(number)
+# except:
+#     number = 0
+# selected_options = []
+# if(number<=8):
+#     for i in range(number):
+#         option = st.selectbox('Symptom',list(symptoms.columns),key=i)
+#         'You selected: ', option
+#         selected_options.append(option)
+# else:
+#     st.write("Cant enter more than 8 symptoms")
 # option1 = st.selectbox('Symptom 2',list(symptoms.columns),key=2)
 # 'You selected: ', option1
 # option2= st.selectbox('Symptom 3',list(symptoms.columns),key=3)
@@ -137,20 +131,21 @@ def tellPrecautions(disease):
 
     # print(precautions)
     return precautions
-if(number>0 and number<8):
-    if st.button("Predict"):
-        "Predicted Disease is: ", predictDisease(selected_options)[0]
-        st.write(tellDescription(predictDisease(selected_options)[0]))
-        prec = (tellPrecautions(predictDisease(selected_options)[0]))
-        "Precautions:"
-        for i in prec:
-            try:
-                if math.isnan(i):
-                    continue
-                
-            except:
-                st.write("*",i)
-        # "1. ", prec[0]
-        # "2. ", prec[1]
-        # "3. ", prec[2]
-        # "4. ", prec[3]
+
+para_list = list(para.split(" "))
+print("para list",para_list)
+if st.button("Predict"):
+    "Predicted Disease is: ", predictDisease(para_list)[0]
+    st.write(tellDescription(predictDisease(para_list)[0]))
+    prec = (tellPrecautions(predictDisease(para_list)[0]))
+    "Precautions:"
+    for i in prec:
+        try:
+            if math.isnan(i):
+                continue
+            
+        except:
+            st.write("*",i)
+    # "1. ", prec[0]
+    # "2. ", prec[1]
+    # "3. ", prec[2]
